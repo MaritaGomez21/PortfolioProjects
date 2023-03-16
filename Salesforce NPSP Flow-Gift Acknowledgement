@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <description>This element sends the email.</description>
+        <name>Send_Email</name>
+        <label>Send Email</label>
+        <locationX>176</locationX>
+        <locationY>518</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Acknowledgment_Status</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>emailBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>Get_Opportunity.npsp__Primary_Contact__r.Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>sendRichBody</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue>Thank you for your gift to No More Homelessness!</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>55.0</apiVersion>
+    <assignments>
+        <description>The assignment element sets the values for the opportunity record before we update it in the database.</description>
+        <name>Acknowledgment_Status</name>
+        <label>Acknowledgment Status</label>
+        <locationX>176</locationX>
+        <locationY>638</locationY>
+        <assignmentItems>
+            <assignToReference>Get_Opportunity.npsp__Acknowledgment_Status__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Acknowledged</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Opportunity.npsp__Acknowledgment_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Opportunity</targetReference>
+        </connector>
+    </assignments>
+    <description>Screen element that sends a gift acknowledgment email to donors after allowing users to first preview the email on an opportunity record.</description>
+    <environments>Default</environments>
+    <interviewLabel>Gift Acknowledgment {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Gift Acknowledgment</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordLookups>
+        <description>Look up all field values from the opportunity, whose ID is passed from the opportunity record to the flow in a text variable.</description>
+        <name>Get_Opportunity</name>
+        <label>Get Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>278</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Email_Preview</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Update the opportunity record and save the new Acknowledgment Status and Acknowledgment Date to the database.</description>
+        <name>Update_Opportunity</name>
+        <label>Update Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>758</locationY>
+        <inputReference>Get_Opportunity</inputReference>
+    </recordUpdates>
+    <screens>
+        <description>Shows the user a preview of the email before sending it.</description>
+        <name>Email_Preview</name>
+        <label>Email Preview</label>
+        <locationX>176</locationX>
+        <locationY>398</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Send_Email</targetReference>
+        </connector>
+        <fields>
+            <name>displayEmailBody</name>
+            <fieldText>&lt;p&gt;{!emailBody}&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;background-color: rgb(247, 247, 249); font-size: 12px; color: rgb(21, 0, 5);&quot;&gt;READY TO SEND THIS EMAIL? If so, click Next. If not, make adjustments to the Opportunity and Primary Contact records and refresh the page.&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>This screen is embedded on the opportunity Lightning Page and allows the user to start the flow.</description>
+        <name>Launch</name>
+        <label>Launch</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Get_Opportunity</targetReference>
+        </connector>
+        <fields>
+            <name>displayText</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(247, 247, 249); font-size: 12px; font-family: Monaco, Menlo, Consolas, &amp;quot;Courier New&amp;quot;, monospace; color: rgb(221, 17, 68);&quot;&gt;Ready to acknowledge this gift? Click Next.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Launch</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <description>This is the email template to send to acknowledge the gift.</description>
+        <name>emailBody</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text>&lt;p&gt;Dear {!Get_Opportunity.npsp__Primary_Contact__r.FirstName},&lt;/p&gt;&lt;p&gt;Thank you for your generous gift of ${!Get_Opportunity.Amount} on {!Get_Opportunity.CloseDate}. Your support of our capital campaign helps us make sure everyone in our community has enough food and an affordable place to live.&lt;/p&gt;&lt;p&gt;Sincerely,&lt;/p&gt;&lt;p&gt;{!$User.FirstName} {!$User.LastName}&lt;/p&gt;&lt;p&gt;No More Homelessness&lt;/p&gt;&lt;p&gt;No goods or services were received in return for this gift. No More Homelessness is a public charity recognized as tax-exempt by the IRS under Section 501(c)(3), and your gift may be tax-deductible. Please save this acknowledgment and consult a tax advisor if you can deduct this donation.&lt;/p&gt;</text>
+    </textTemplates>
+    <variables>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
